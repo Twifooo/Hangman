@@ -247,11 +247,16 @@ func main() {
 
 	// Demander combien de lettres doivent être révélées
 	var nbLettresRevelees int
-	fmt.Print("Combien de lettres voulez-vous révéler au début ? (1 recommandé) : ")
+	fmt.Print("Combien de lettres voulez-vous révéler au début ? (1 recommandé et 3 maximum) : ")
 	fmt.Scanln(&nbLettresRevelees)
 
 	if nbLettresRevelees < 0 {
 		fmt.Println("Le nombre de lettres à révéler doit être un entier positif.")
+		return
+	}
+
+	if nbLettresRevelees > 3 {
+		fmt.Println("Vous ne pouvez pas révéler plus de 3 lettres.")
 		return
 	}
 
