@@ -109,15 +109,17 @@ func lireMotsDepuisFichier(nomFichier string) ([]string, error) {
 		return nil, err
 	}
 	defer file.Close()
-	var mots []string
 
+	var mots []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		mots = append(mots, strings.TrimSpace(scanner.Text()))
 	}
+
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
+
 	return mots, nil
 }
 
@@ -133,6 +135,7 @@ func revelerLettres(mot string, nbLettres int) []rune {
 	for i := range lettresRevelees {
 		lettresRevelees[i] = '_'
 	}
+
 	rand.Seed(time.Now().UnixNano())
 	indicesDejaReveles := make(map[int]bool)
 
@@ -155,6 +158,7 @@ func lancerJeu(mot string, nbLettresRevelees int) {
 	erreurs := 0
 	essaisRestants := essaisMax
 	lettresDevinees := revelerLettres(mot, nbLettresRevelees)
+
 	var lettreOuMot string
 	lettresUtilisees := make(map[rune]bool)
 
@@ -162,6 +166,7 @@ func lancerJeu(mot string, nbLettresRevelees int) {
 		afficherTitre()
 		afficherPendu(erreurs)
 		fmt.Println("Mot :", string(lettresDevinees))
+		fmt.Printf("Essais restants : %d\n", essaisRestants)
 
 		// Afficher les lettres utilisées
 		fmt.Print("Lettres utilisées : ")
@@ -169,6 +174,7 @@ func lancerJeu(mot string, nbLettresRevelees int) {
 			fmt.Printf("%c ", lettre)
 		}
 		fmt.Println()
+
 		fmt.Print("Choisissez une lettre ou un mot : ")
 		fmt.Scanln(&lettreOuMot)
 		lettreOuMot = strings.ToLower(lettreOuMot)
@@ -216,10 +222,12 @@ func choisirFichier() string {
 	fmt.Println("1: Noms propres (nomP.txt)")
 	fmt.Println("2: Mots courants (mots.txt)")
 	fmt.Println("3: Verbes (verbes.txt)")
+
 	var choix int
 	for {
 		fmt.Print("Entrez le numéro correspondant à votre choix : ")
 		fmt.Scanln(&choix)
+
 		switch choix {
 		case 1:
 			return "nomP.txt"
@@ -236,17 +244,14 @@ func choisirFichier() string {
 // Fonction principale
 func main() {
 	fichierMots := choisirFichier()
+
+	// Demander combien de lettres doivent être révélées
 	var nbLettresRevelees int
-	fmt.Print("Combien de lettres voulez-vous révéler au début ? (1 recommandé, 3 maximum) : ")
+	fmt.Print("Combien de lettres voulez-vous révéler au début ? (1 recommandé) : ")
 	fmt.Scanln(&nbLettresRevelees)
 
 	if nbLettresRevelees < 0 {
 		fmt.Println("Le nombre de lettres à révéler doit être un entier positif.")
-		return
-	}
-
-	if nbLettresRevelees > 3 {
-		fmt.Println("Vous ne pouvez pas révéler plus de 3 lettres.")
 		return
 	}
 
