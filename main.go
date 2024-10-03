@@ -35,17 +35,73 @@ func afficherMessageAvecAnimation(message string) {
 		time.Sleep(50 * time.Millisecond)
 	}
 	fmt.Println()
-	time.Sleep(500 * time.Millisecond) // Pause après le message
 }
 
 // Fonction pour afficher l'état du pendu avec couleur
 func afficherPendu(erreurs int) {
 	couleurPendu := color.New(color.FgGreen).SprintFunc()
 	pendu := []string{
-		// Les différentes étapes du pendu (comme dans ton code précédent)
+		`
+		_____________________
+         _______
+        |/      |
+    	    |
+    	    |
+    	    |
+    	    |
+    	   _|___
+	    _____________________`,
+		`
+         _______
+        |/      |
+        |      (_)
+        |
+        |
+        |
+       _|___`,
+		`
+         _______
+        |/      |
+        |      (_)
+        |       |
+        |
+        |
+       _|___`,
+		`
+         _______
+        |/      |
+        |      (_)
+        |      \|
+        |
+        |
+       _|___`,
+		`
+         _______
+        |/      |
+        |      (_)
+        |      \|/
+        |
+        |
+       _|___`,
+		`
+         _______
+        |/      |
+        |      (_)
+        |      \|/
+        |       |
+        |
+       _|___`,
+		`
+         _______
+        |/      |
+        |      (_)
+        |      \|/
+        |       |
+        |      / \
+       _|___`,
 	}
+
 	fmt.Println(couleurPendu(pendu[erreurs]))
-	time.Sleep(300 * time.Millisecond) // Petite pause
 }
 
 // Fonction pour lire les mots depuis un fichier
@@ -77,31 +133,136 @@ func choisirMotAleatoire(mots []string) string {
 
 // Fonction pour révéler un certain nombre de lettres au début
 func revelerLettres(mot string, nbLettres int) []rune {
-	// Logique pour révéler les lettres (comme dans ton code précédent)
+	lettresRevelees := make([]rune, len(mot))
+	for i := range lettresRevelees {
+		lettresRevelees[i] = '_'
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	indicesDejaReveles := make(map[int]bool)
+
+	for i := 0; i < nbLettres; i++ {
+		for {
+			index := rand.Intn(len(mot))
+			if !indicesDejaReveles[index] {
+				indicesDejaReveles[index] = true
+				lettresRevelees[index] = rune(mot[index])
+				break
+			}
+		}
+	}
+
+	return lettresRevelees
 }
 
 // Fonction pour gérer le jeu
 func lancerJeu(mot string, nbLettresRevelees int) {
-	// Logique principale du jeu (comme dans ton code précédent)
+	erreurs := 0
+	essaisRestants := essaisMax
+	lettresDevinees := revelerLettres(mot, nbLettresRevelees)
+
+	var lettreOuMot string
+	lettresUtilisees := make(map[rune]bool)
+
 	for erreurs < essaisMax && strings.Contains(string(lettresDevinees), "_") {
 		afficherTitre()
 		afficherPendu(erreurs)
 		fmt.Println("Mot :", string(lettresDevinees))
 		fmt.Printf("Essais restants : %d\n", essaisRestants)
 
-		// Pause pour permettre aux joueurs de bien lire
-		time.Sleep(500 * time.Millisecond)
+		// Afficher les lettres utilisées
+		fmt.Print("Lettres utilisées : ")
+		for lettre := range lettresUtilisees {
+			fmt.Printf("%c ", lettre)
+		}
+		fmt.Println()
 
-		// Logique de devinette (comme dans ton code précédent)
+		fmt.Print("Choisissez une lettre ou un mot : ")
+		fmt.Scanln(&lettreOuMot)
+		lettreOuMot = strings.ToLower(lettreOuMot)
+
+		if len(lettreOuMot) == 1 {
+			lettre := rune(lettreOuMot[0])
+			if !lettresUtilisees[lettre] {
+				lettresUtilisees[lettre] = true
+				if strings.ContainsRune(mot, lettre) {
+					for i, l := range mot {
+						if l == lettre {
+							lettresDevinees[i] = lettre
+						}
+					}
+				} else {
+					erreurs++
+					essaisRestants--
+					afficherMessageAvecAnimation("Mauvaise lettre !")
+				}
+			} else {
+				afficherMessageAvecAnimation("Vous avez déjà deviné cette lettre.")
+			}
+		} else {
+			if lettreOuMot == mot {
+				lettresDevinees = []rune(mot)
+			} else {
+				erreurs += 2
+				essaisRestants -= 2
+				afficherMessageAvecAnimation("Mauvais mot ! Vous avez perdu deux essais.")
+			}
+		}
+	}
+	afficherPendu(erreurs)
+	if erreurs >= essaisMax {
+		afficherMessageAvecAnimation("Vous avez perdu ! Le mot était : " + mot)
+	} else {
+		afficherMessageAvecAnimation("Bravo ! Vous avez trouvé le mot : " + mot)
 	}
 }
 
 // Fonction pour afficher le menu et choisir un fichier
 func choisirFichier() string {
-	// Logique pour choisir un fichier (comme dans ton code précédent)
+	fmt.Println("Choisissez une catégorie de mots :")
+	fmt.Println("1: Noms propres (nomP.txt)")
+	fmt.Println("2: Mots courants (mots.txt)")
+	fmt.Println("3: Verbes (verbes.txt)")
+	var choix int
+	for {
+		fmt.Print("Entrez le numéro correspondant à votre choix : ")
+		fmt.Scanln(&choix)
+		switch choix {
+		case 1:
+			return "nomP.txt"
+		case 2:
+			return "mots.txt"
+		case 3:
+			return "verbes.txt"
+		default:
+			fmt.Println("Choix invalide. Veuillez entrer 1, 2 ou 3.")
+		}
+	}
 }
 
 // Fonction principale
 func main() {
-	// Logique principale (comme dans ton code précédent)
+	fichierMots := choisirFichier()
+	var nbLettresRevelees int
+	fmt.Print("Combien de lettres voulez-vous révéler au début ? (1 recommandé et 3 maximum) : ")
+	fmt.Scanln(&nbLettresRevelees)
+	if nbLettresRevelees < 0 {
+		fmt.Println("Le nombre de lettres à révéler doit être un entier positif.")
+		return
+	}
+	if nbLettresRevelees > 3 {
+		fmt.Println("Vous ne pouvez pas révéler plus de 3 lettres.")
+		return
+	}
+	mots, err := lireMotsDepuisFichier(fichierMots)
+	if err != nil {
+		fmt.Println("Erreur lors de la lecture du fichier :", err)
+		return
+	}
+	if len(mots) == 0 {
+		fmt.Println("Le fichier est vide ou ne contient aucun mot valide.")
+		return
+	}
+	mot := choisirMotAleatoire(mots)
+	lancerJeu(mot, nbLettresRevelees)
 }
