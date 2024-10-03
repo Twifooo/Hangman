@@ -207,7 +207,6 @@ func lancerJeu(mot string, nbLettresRevelees int) {
 			}
 		}
 	}
-
 	afficherPendu(erreurs)
 	if erreurs >= essaisMax {
 		afficherMessageAvecAnimation("Vous avez perdu ! Le mot était : " + mot)
@@ -222,12 +221,10 @@ func choisirFichier() string {
 	fmt.Println("1: Noms propres (nomP.txt)")
 	fmt.Println("2: Mots courants (mots.txt)")
 	fmt.Println("3: Verbes (verbes.txt)")
-
 	var choix int
 	for {
 		fmt.Print("Entrez le numéro correspondant à votre choix : ")
 		fmt.Scanln(&choix)
-
 		switch choix {
 		case 1:
 			return "nomP.txt"
@@ -244,33 +241,26 @@ func choisirFichier() string {
 // Fonction principale
 func main() {
 	fichierMots := choisirFichier()
-
-	// Demander combien de lettres doivent être révélées
 	var nbLettresRevelees int
 	fmt.Print("Combien de lettres voulez-vous révéler au début ? (1 recommandé et 3 maximum) : ")
 	fmt.Scanln(&nbLettresRevelees)
-
 	if nbLettresRevelees < 0 {
 		fmt.Println("Le nombre de lettres à révéler doit être un entier positif.")
 		return
 	}
-
 	if nbLettresRevelees > 3 {
 		fmt.Println("Vous ne pouvez pas révéler plus de 3 lettres.")
 		return
 	}
-
 	mots, err := lireMotsDepuisFichier(fichierMots)
 	if err != nil {
 		fmt.Println("Erreur lors de la lecture du fichier :", err)
 		return
 	}
-
 	if len(mots) == 0 {
 		fmt.Println("Le fichier est vide ou ne contient aucun mot valide.")
 		return
 	}
-
 	mot := choisirMotAleatoire(mots)
 	lancerJeu(mot, nbLettresRevelees)
 }
