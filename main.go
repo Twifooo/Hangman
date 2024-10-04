@@ -42,15 +42,13 @@ func afficherPendu(erreurs int) {
 	couleurPendu := color.New(color.FgGreen).SprintFunc()
 	pendu := []string{
 		`
-		_____________________
          _______
         |/      |
-    	    |
-    	    |
-    	    |
-    	    |
-    	   _|___
-	    _____________________`,
+    	|
+        |
+        |
+        |
+       _|___`,
 		`
          _______
         |/      |
